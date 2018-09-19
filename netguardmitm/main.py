@@ -93,6 +93,7 @@ def my_file_download_packet_callback(raw_packet, packet, data, bytes_remaining):
 
 def main():
     mitm = NetGuardMITM()
+    mitm.log_callback = lambda x: print(x)
     mitm.login_request_callback = my_login_request_callback
     mitm.login_response_callback = my_login_response_callback
     mitm.protect_request_callback = my_protect_request_callback

@@ -13,6 +13,7 @@ REQUEST_PROTECT = 1
 class NetGuardMITM:
 
     def __init__(self):
+        self.log_callback = None
         self.netguard_server_ip = None
         self.login_request_callback = None
         self.protect_request_callback = None
@@ -23,6 +24,10 @@ class NetGuardMITM:
         self.file_transfer_in_progress = False
         self.file_transfer_bytes_remaining = 0
         self.__last_request = None
+
+    def log(self, message):
+        if self.log_callback:
+            self.log_callback(message)
 
     def packet_callback(self, raw_packet):
         """
@@ -168,6 +173,7 @@ class NetGuardMITM:
 
         try:
             # Add necessary IP table entries.
+            self.log("Updating IP tables...")
             system("iptables -A INPUT -d 192.168.2.6 -p tcp -j NFQUEUE --queue-num 1")
             system("iptables -A OUTPUT -s 192.168.2.6 -p tcp -j NFQUEUE --queue-num 1")
 
@@ -177,14 +183,17 @@ class NetGuardMITM:
             s = socket.fromfd(nfqueue.get_fd(), socket.AF_UNIX, socket.SOCK_STREAM)
 
             try:
+                self.log("Running MITM...")
                 nfqueue.run_socket(s)
             except KeyboardInterrupt:
                 pass
 
+                self.log("Closing sockets...")
             s.close()
             nfqueue.unbind()
 
         finally:
             # Remove IP table entries.
+            self.log("Restoring IP tables.")
             system("iptables -D INPUT 1")
             system("iptables -D OUTPUT 1")
