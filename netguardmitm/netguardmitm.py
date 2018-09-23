@@ -12,7 +12,9 @@ REQUEST_PROTECT = 1
 
 class NetGuardMITM:
 
-    def __init__(self):
+    def __init__(self, ip, queue_number=1):
+        self.ip = ip
+        self.queue_number = queue_number
         self.log_callback = None
         self.netguard_server_ip = None
         self.login_request_callback = None
@@ -174,12 +176,12 @@ class NetGuardMITM:
         try:
             # Add necessary IP table entries.
             self.log("Updating IP tables...")
-            system("iptables -A INPUT -d 192.168.2.6 -p tcp -j NFQUEUE --queue-num 1")
-            system("iptables -A OUTPUT -s 192.168.2.6 -p tcp -j NFQUEUE --queue-num 1")
+            system("iptables -A INPUT -d {} -p tcp -j NFQUEUE --queue-num {}".format(self.ip, self.queue_number))
+            system("iptables -A OUTPUT -s {} -p tcp -j NFQUEUE --queue-num {}".format(self.ip, self.queue_number))
 
             # Bind to filter queue.
             nfqueue = NetfilterQueue()
-            nfqueue.bind(1, self.packet_callback)
+            nfqueue.bind(self.queue_number, self.packet_callback)
             s = socket.fromfd(nfqueue.get_fd(), socket.AF_UNIX, socket.SOCK_STREAM)
 
             try:

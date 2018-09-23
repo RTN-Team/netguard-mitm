@@ -23,9 +23,13 @@ Simply run the following command in your terminal on the Linux machine as root:
 python3 main.py
 ```
 
-This turns your machine into the malicious access point (AP).
+Typically this would autodetect the settings for you. However, if you need for whatever reason to specify the settings, you can provide some command line arguments:
 
-Upon interacting with the .NET Guard application in the VM (the client), the script will print out status messages upon events such as login and protect requests, and will output binaries in the current folder whenever a file transfer has been made.
+```sh
+python3 main.py --ip=192.168.0.1 --queue_num=123
+```
+
+While interacting with the .NET Guard application in the VM (the client), the script will print out status messages upon events such as login and protect requests, and will output binaries in the current folder whenever a file transfer has been made.
 
 To exit the application, use the Ctrl+C keys.
 
