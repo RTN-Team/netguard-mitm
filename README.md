@@ -57,7 +57,7 @@ A: This script is a PoC only, and only works if you are able to reroute the traf
 
 **Q: How do I obtain the password after sniffing the hash code?**
  
-A: There are many publicly available tools to crack the hash within reasonable time. These tools include John the Rippper and HashCat. Make sure that it is configured to crack a double MD5 hashcode (i.e. `hash = MD5(MD5(password))`).
+A: There are many publicly available tools to crack the hash within reasonable time. These tools include [John the Rippper](https://www.openwall.com/john/) and [HashCat](https://hashcat.net/hashcat/). Make sure that it is configured to crack a double MD5 hashcode (i.e. `hash = MD5(MD5(password))`).
 
 **Q: Can I capture any (un)obfuscated file being transferred from and to the .NETGuard server with this script?**
 
