@@ -5,6 +5,8 @@ from netguardmitm import NetGuardMITM
 
 file_data = b""
 file_upload_started = False
+obfuscated_file_name = None
+original_file_name = None
 string_needle = b'b\0e\0n\0i\0g\0n\0'
 string_replacement = b'm\0o\0d\0d\0e\0d\0'
 
@@ -31,7 +33,7 @@ def my_protect_request_callback(raw_packet, packet, username, password):
 
 
 def my_file_upload_packet_callback(raw_packet, packet, data, bytes_remaining):
-    global file_data, file_upload_started
+    global file_data, file_upload_started, original_file_name
     total_bytes_sent = len(file_data) + len(data)
     print("Capturing original binary packet ({}/{})...".format(total_bytes_sent, total_bytes_sent + bytes_remaining))
 
@@ -44,10 +46,10 @@ def my_file_upload_packet_callback(raw_packet, packet, data, bytes_remaining):
 
     if bytes_remaining == 0:
         print("Reconstructed original binary from the captured outgoing packets...")
-        with open("sniffed_original_binary.exe", "wb") as fs:
+        with open(original_file_name, "wb") as fs:
             fs.write(bytearray(file_data))
         file_data = b""
-        print("Saved to sniffed_original_binary.exe")
+        print("Saved to", original_file_name)
         file_upload_started = False
 
     return True
@@ -62,7 +64,7 @@ def my_protect_response_callback(raw_packet, packet, body):
 
 def my_file_download_packet_callback(raw_packet, packet, data, bytes_remaining):
     accept = True
-    global file_data, file_upload_started, string_needle, string_replacement
+    global file_data, file_upload_started, string_needle, string_replacement, obfuscated_file_name
     total_bytes_received = len(file_data) + len(data)
     print("Capturing output binary packet ({}/{})...".format(total_bytes_received, total_bytes_received + bytes_remaining))
     file_data += data
@@ -87,10 +89,10 @@ def my_file_download_packet_callback(raw_packet, packet, data, bytes_remaining):
 
     if bytes_remaining == 0:
         print("Reconstructed new binary from the captured incoming packets...")
-        with open("sniffed_output_binary.exe", "wb") as fs:
+        with open(obfuscated_file_name, "wb") as fs:
             fs.write(bytearray(file_data))
         file_data = b""
-        print("Saved to sniffed_output_binary.exe")
+        print("Saved to", obfuscated_file_name)
         file_upload_started = False
 
     return accept
@@ -105,21 +107,35 @@ def get_default_ip():
 
 
 def main():
+    global original_file_name, obfuscated_file_name
+
     # Parse command line args:
     ip = None
     queue_num = None
 
-    for arg in sys.argv:
+    for i in range(1, len(sys.argv)):
+        arg = sys.argv[i]
         if arg.startswith('--ip='):
             ip = arg[5:]
         elif arg.startswith("--queue-num="):
             queue_num = int(arg[12:])
+        elif arg.startswith("--original-file-name="):
+            original_file_name = arg[21:]
+        elif arg.startswith("--obfuscated-file-name="):
+            obfuscated_file_name = arg[23:]
+        else:
+            print("Unrecognized argument", arg)
+            exit(1)
 
     # Insert default values if args are not provided:
     if not ip:
         ip = get_default_ip()
     if not queue_num:
         queue_num = 1
+    if not obfuscated_file_name:
+        obfuscated_file_name = "sniffed_original_binary.exe"
+    if not original_file_name:
+        obfuscated_file_name = "sniffed_output_binary.exe"
 
     # Set up MITM.
     mitm = NetGuardMITM(ip, queue_num)

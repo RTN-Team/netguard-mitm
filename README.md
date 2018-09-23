@@ -26,7 +26,7 @@ python3 main.py
 Typically this would autodetect the settings for you. However, if you need for whatever reason to specify the settings, you can provide some command line arguments:
 
 ```sh
-python3 main.py --ip=192.168.0.1 --queue_num=123
+python3 main.py --ip=192.168.0.1 --queue_num=123 --original-file-name=input.exe --obfuscated-file-name=output.exe
 ```
 
 While interacting with the .NET Guard application in the VM (the client), the script will print out status messages upon events such as login and protect requests, and will output binaries in the current folder whenever a file transfer has been made.
