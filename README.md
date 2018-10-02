@@ -42,7 +42,7 @@ The file `netguardmitm.py` is the backbone of the MITM attack, and uses the `ipt
 Demonstration
 -------------
 
-TODO: video
+[![Showcase of a MITM attack on .NETGuard](http://img.youtube.com/vi/J6Qn9k7NMfg/0.jpg)](http://www.youtube.com/watch?v=J6Qn9k7NMfg "Showcase of a MITM attack on .NETGuard")
 
 FAQ
 ---
